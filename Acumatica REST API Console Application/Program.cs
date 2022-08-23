@@ -1,17 +1,8 @@
-﻿using Acumatica.Auth.Api;
-using Acumatica.Auth.Model;
-using Acumatica.Default_20_200_001.Api;
-using Acumatica.RESTClient.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace AcumaticaRestApiExample
 {
-	class Program
+    class Program
 	{
 		const string SiteURL = "http://localhost/demo/";
 		const string Username = "admin";
@@ -22,11 +13,8 @@ namespace AcumaticaRestApiExample
 
 		static void Main(string[] args)
 		{
-			//Console.WriteLine("SOAP-like example");
-			//SOAPLikeExample.ExampleMethod(SiteURL, Username, Password, Tenant, Branch, Locale);
-
-			Console.WriteLine("REST API example");
-			RESTExample.ExampleMethod(SiteURL, Username, Password, Tenant, Branch, Locale);
+            Console.WriteLine("SOAP-like example");
+            SOAPLikeExample.ExampleMethod(SiteURL, Username, Password, Tenant, Branch, Locale);
 
 			Console.ReadLine();
 		}
