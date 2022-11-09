@@ -1,14 +1,18 @@
-﻿using Acumatica.Default_20_200_001.Model;
-using SOAPLikeWrapperForREST;
-using System;
+﻿using System;
 
-namespace AcumaticaRestApiExample
+using Acumatica.Default_20_200_001.Model;
+
+using SOAPLikeWrapperForREST;
+
+namespace AcumaticaSoapLikeApiExample
 {
     public class SOAPLikeExample
     {
         public static void ExampleMethod(string siteURL, string username, string password, string tenant = null, string branch = null, string locale = null)
         {
-            var restClient = new SOAPLikeClient(siteURL, "/Default/20.200.001");
+            var restClient = new SOAPLikeClient(siteURL,
+                requestInterceptor: RequestLogger.LogRequest,
+                responseInterceptor: RequestLogger.LogResponse);
 
             try
             {

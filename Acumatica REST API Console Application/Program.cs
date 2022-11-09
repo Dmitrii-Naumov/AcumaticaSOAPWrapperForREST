@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace AcumaticaRestApiExample
+namespace AcumaticaSoapLikeApiExample
 {
     class Program
 	{
-		const string SiteURL = "http://localhost/demo/";
+		const string SiteURL = "http://localhost/example/entity/Default/22.200.001/";
 		const string Username = "admin";
 		const string Password = "123";
 		const string Tenant = null;
