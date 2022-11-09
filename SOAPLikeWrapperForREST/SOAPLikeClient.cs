@@ -77,7 +77,13 @@ namespace SOAPLikeWrapperForREST
 
         public void Login(string username, string password, string tenant = null, string branch = null, string locale = null)
         {
-            CurrentConfiguration = AuthorizationApi.LogIn(new Credentials(username, password, tenant, branch, locale));
+            CurrentConfiguration = AuthorizationApi.LogIn(
+                new Credentials(
+                    name: username, 
+                    password: password, 
+                    tenant: tenant, 
+                    branch: branch, 
+                    locale: locale));
             CurrentConfiguration.Timeout = Timeout;
         }
         public void Logout()
