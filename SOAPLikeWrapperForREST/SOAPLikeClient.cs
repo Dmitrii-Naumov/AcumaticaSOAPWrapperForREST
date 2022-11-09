@@ -1,25 +1,72 @@
-﻿using Acumatica.Auth.Api;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+
+using Acumatica.Auth.Api;
 using Acumatica.Auth.Model;
 using Acumatica.RESTClient.Api;
 using Acumatica.RESTClient.Client;
 using Acumatica.RESTClient.Model;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+
+using RestSharp;
+
+[assembly: InternalsVisibleTo("SOAPWrapperTests")]
 
 namespace SOAPLikeWrapperForREST
 {
     public class SOAPLikeClient
     {
         #region Constructor
-        public SOAPLikeClient(string siteURL, string endpointPath, int timeout = 10000)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SOAPLikeClient"/> class
+        /// </summary>
+        /// <param name="siteURL">
+        /// Path to the Acumatica instance e.g. <c>https://example.acumatica.com/</c>
+        /// </param>
+        /// <param name="endpointPath">
+        /// Relative endpoint path, e.g. <c>entity/Default/22.200.001</c>
+        /// </param>
+        /// <param name="timeout">
+        /// Request timeout of the <see cref="SOAPLikeClient"/> in milliseconds. Default to 10000 milliseconds.
+        /// </param>
+        /// <param name="requestInterceptor">
+        /// An action delegate that will be executed along with sending an API request. Can be used for logging purposes.
+        /// </param>
+        /// <param name="responseInterceptor">
+        /// An action delegate that will be executed along with receiving an API response. Can be used for logging purposes.
+        /// </param>
+        public SOAPLikeClient(string siteURL, string endpointPath, int timeout = 10000, Action<RestRequest, RestClient> requestInterceptor = null, Action<RestRequest, RestResponse, RestClient> responseInterceptor = null)
         {
-            AuthorizationApi = new AuthApi(siteURL);
+            AuthorizationApi = new AuthApi(siteURL, timeout, requestInterceptor, responseInterceptor);
             ProcessStartTime = new Dictionary<string, DateTime>();
             Timeout = timeout;
+            EndpointPath = endpointPath;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SOAPLikeClient"/> class
+        /// </summary>
+        /// <param name="endpointURL">
+        /// Path to the Acumatica instance e.g. <c>https://example.acumatica.com/entity/Default/22.200.001</c>
+        /// </param>
+        /// <param name="timeout">
+        /// Request timeout of the <see cref="SOAPLikeClient"/> in milliseconds. Default to 10000 milliseconds.
+        /// </param>
+        /// <param name="requestInterceptor">
+        /// An action delegate that will be executed along with sending an API request. Can be used for logging purposes.
+        /// </param>
+        /// <param name="responseInterceptor">
+        /// An action delegate that will be executed along with receiving an API response. Can be used for logging purposes.
+        /// </param>
+        public SOAPLikeClient(string endpointURL, int timeout = 10000, Action<RestRequest, RestClient> requestInterceptor = null, Action<RestRequest, RestResponse, RestClient> responseInterceptor = null)
+            : this(TakeSiteURL(TrimRedundantPartsOfTheURL(endpointURL)),
+                   TakeEndpointPath(TrimRedundantPartsOfTheURL(endpointURL)),
+                   timeout,
+                   requestInterceptor,
+                   responseInterceptor)
+        { }
         #endregion
 
         #region Public Methods
@@ -42,13 +89,13 @@ namespace SOAPLikeWrapperForREST
         public T GetById<T>(Guid? id, string select = null, string filter = null, string expand = null, string custom = null)
             where T : Entity
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             return api.GetById(id, select, filter, expand, custom);
         }
         public T GetByKeys<T>(IEnumerable<string> ids, string select = null, string filter = null, string expand = null, string custom = null)
             where T : Entity
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             return api.GetByKeys(ids, select, filter, expand, custom);
         }
 
@@ -57,7 +104,7 @@ namespace SOAPLikeWrapperForREST
             where T : Entity
         {
             string expand = ComposeExpands(entity);
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             if (entity.ID.HasValue)
             {
                 T resultByID = api.GetById(entity.ID, expand: expand);
@@ -82,7 +129,7 @@ namespace SOAPLikeWrapperForREST
             where T : Entity
         {
             string expand = ComposeExpands(entity);
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
 
             string filter = ComposeFilterForGetList(entity);
             var result = api.GetList(filter: filter, expand: expand, skip: skip, top: top);
@@ -92,7 +139,7 @@ namespace SOAPLikeWrapperForREST
         public T Put<T>(T entity)
             where T : Entity
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             var result = api.PutEntity(entity, expand: ComposeExpands(entity), businessDate: BusinessDate);
             result.ReturnBehavior = entity.ReturnBehavior;
             return result;
@@ -105,7 +152,7 @@ namespace SOAPLikeWrapperForREST
             {
                 throw new NotImplementedException("Only one file attachment at a time is supported.");
             }
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             api.PutFile(keys, files[0].Name, files[0].Content);
         }
         [Obsolete("GetFiles method is for backward compatibility with SOAP only. Use one of the following REST methods instead: FileApi.GetFile")]
@@ -133,7 +180,7 @@ namespace SOAPLikeWrapperForREST
         /// <returns></returns>
         public void DeleteById<T>(Guid? id) where T : Entity
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             api.DeleteById(id);
         }
 
@@ -146,14 +193,14 @@ namespace SOAPLikeWrapperForREST
         public void DeleteByKeys<T>(IEnumerable<string> ids)
             where T : Entity
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             api.DeleteByKeys(ids);
         }
 
         public string Invoke<T>(EntityAction<T> action)
               where T : Entity
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             string invokeResult = api.InvokeAction(action);
             if (ProcessStartTime.ContainsKey(invokeResult))
             { }
@@ -165,7 +212,7 @@ namespace SOAPLikeWrapperForREST
         }
         public ProcessResult GetProcessStatus(string invokeResult)
         {
-            SOAPLikeEntityAPI<Entity> api = new SOAPLikeEntityAPI<Entity>(CurrentConfiguration);
+            SOAPLikeEntityAPI<Entity> api = new SOAPLikeEntityAPI<Entity>(CurrentConfiguration, EndpointPath);
             return new ProcessResult()
             {
                 Status = (ProcessStatus)api.GetProcessStatus(invokeResult),
@@ -218,6 +265,7 @@ namespace SOAPLikeWrapperForREST
                 }
             }
         }
+
         #endregion
 
         #region Implementation
@@ -225,6 +273,7 @@ namespace SOAPLikeWrapperForREST
 
         protected AuthApi AuthorizationApi;
         protected Configuration CurrentConfiguration;
+        protected string EndpointPath;
         protected int Timeout;
         protected DateTime? BusinessDate;
 
@@ -446,6 +495,61 @@ namespace SOAPLikeWrapperForREST
             }
             return 0;
         }
+        #endregion
+
+        #region Auxiliary
+
+        private const string EntityKeyword = "/entity/";
+        internal static string TrimRedundantPartsOfTheURL(string dirtyURL)
+        {
+            string cleanURL = dirtyURL
+                .Replace("?wsdl", "")
+                .Replace("/swagger.json", "");
+
+            int indexOfSession = cleanURL.IndexOf("/(W(");
+            if (indexOfSession > 0)
+            {
+                int indexOfSessionEnd = cleanURL.IndexOf("))/", indexOfSession);
+                string urlPart1 = cleanURL.Substring(0, indexOfSession);
+                string urlPart2 = cleanURL.Substring(indexOfSessionEnd + 2);
+                cleanURL = urlPart1 + urlPart2;
+            }
+
+            return cleanURL;
+        }
+        internal static string TakeSiteURL(string fullURL)
+        {
+            int indexOfEntity = fullURL.IndexOf(EntityKeyword);
+            if (indexOfEntity > 0)
+            {
+                return EnsureSlash(fullURL.Substring(0, indexOfEntity));
+            }
+            else
+            {
+                throw new ArgumentException("The provided URL is not valid.");
+            }
+        }
+        internal static string EnsureSlash(string url)
+        {
+            if (url.EndsWith("/"))
+            {
+                return url;
+            }
+            else return url + "/";
+        }
+        internal static string TakeEndpointPath(string fullURL)
+        {
+            int indexOfEntity = fullURL.IndexOf(EntityKeyword);
+            if (indexOfEntity > 0)
+            {
+                return fullURL.Substring(indexOfEntity + 1);
+            }
+            else
+            {
+                throw new ArgumentException("The provided URL is not valid.");
+            }
+        }
+
         #endregion
     }
 }
