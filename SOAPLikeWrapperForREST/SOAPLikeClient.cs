@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 using Acumatica.Auth.Api;
@@ -351,7 +352,7 @@ namespace SOAPLikeWrapperForREST
                 {
                     if (returnAll || (entity != null && entity.ReturnBehavior == ReturnBehavior.All))
                     {
-                        foreach (var subentity in GetSubEntitiesWithReturnBehavior(field.PropertyType.GetElementType(), null, true))
+                        foreach (var subentity in GetSubEntitiesWithReturnBehavior(GetSubentityType(field), null, true))
                         {
                             result.Add(field.Name + "/" + subentity);
                         }
@@ -369,7 +370,7 @@ namespace SOAPLikeWrapperForREST
                                     item = (Entity)detail;
                                     if (item != null && item.ReturnBehavior == ReturnBehavior.All)
                                     {
-                                        foreach (var subentity in GetSubEntitiesWithReturnBehavior(field.PropertyType.GetElementType(), null, true))
+                                        foreach (var subentity in GetSubEntitiesWithReturnBehavior(GetSubentityType(field), null, true))
                                         {
                                             result.Add(field.Name + "/" + subentity);
                                         }
@@ -377,7 +378,7 @@ namespace SOAPLikeWrapperForREST
                                     }
                                     else if (item != null && item.ReturnBehavior == ReturnBehavior.Default)
                                     {
-                                        foreach (var subentity in GetSubEntitiesWithReturnBehavior(field.PropertyType.GetElementType(), item))
+                                        foreach (var subentity in GetSubEntitiesWithReturnBehavior(GetSubentityType(field), item))
                                         {
                                             result.Add(field.Name + "/" + subentity);
                                         }
@@ -415,6 +416,22 @@ namespace SOAPLikeWrapperForREST
             }
 
             return result.Distinct();
+        }
+
+        private static Type GetSubentityType(PropertyInfo field)
+        {
+            Type subentityType;
+            if (field.PropertyType.Name == "List`1")
+            {
+
+                subentityType = field.PropertyType.GetGenericArguments().FirstOrDefault();
+            }
+            else
+            {
+                subentityType = field.PropertyType.GetElementType();
+            }
+
+            return subentityType;
         }
 
         protected IEnumerable<LinkedEntity> GetLinkedEntities<T>(T entity)
