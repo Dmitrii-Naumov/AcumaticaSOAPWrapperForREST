@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 
-using Acumatica.Default_20_200_001.Model;
+using Acumatica.Default_22_200_001.Model;
+using Acumatica.RESTClient.Model;
 
 using SOAPLikeWrapperForREST;
 
@@ -22,16 +24,18 @@ namespace AcumaticaSoapLikeApiExample
                 Shipment shipment = new Shipment()
                 {
                     ShipmentNbr = new StringSearch() { Value = "002644" },
-                    //Packages = new ShipmentPackage[]
-                    //{
-                    //    new ShipmentPackage { 
-                    //        ReturnBehavior=  ReturnBehavior.All,
-                    //        PackageContents = new PackageContents[]
-                    //        {
-                    //            new PackageContents() { ReturnBehavior= ReturnBehavior.All}
-                    //        }
-                    //    }
-                    //}
+                    Packages = new List<ShipmentPackage>()
+                    {
+                        new ShipmentPackage {
+                            ReturnBehavior=  ReturnBehavior.All,
+                            PackageContents = new List<ShipmentPackageDetail>()
+                            {
+                                new ShipmentPackageDetail() { ReturnBehavior= ReturnBehavior.All}
+                            }
+                        }
+                    },
+                    CustomFields = new CustomField[] { new CustomField("CustomStringValue") { viewName="Document", fieldName="ShipmentNbr" } }
+                
                 };
                 shipment = (Shipment)restClient.Get(shipment);
 
