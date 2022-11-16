@@ -13,8 +13,8 @@ namespace AcumaticaSoapLikeApiExample
         public static void ExampleMethod(string siteURL, string username, string password, string tenant = null, string branch = null, string locale = null)
         {
             var restClient = new SOAPLikeClient(siteURL,
-                requestInterceptor: RequestLogger.LogRequest,
-                responseInterceptor: RequestLogger.LogResponse);
+                requestInterceptor: RequestConsoleLogger.LogRequest,
+                responseInterceptor: RequestConsoleLogger.LogResponse);
 
             try
             {
@@ -23,7 +23,7 @@ namespace AcumaticaSoapLikeApiExample
 
                 Shipment shipment = new Shipment()
                 {
-                    ShipmentNbr = new StringSearch() { Value = "002644" },
+                    ShipmentNbr = new StringSearch() { Value = "004372" },
                     Packages = new List<ShipmentPackage>()
                     {
                         new ShipmentPackage {
@@ -40,6 +40,9 @@ namespace AcumaticaSoapLikeApiExample
                 shipment = (Shipment)restClient.Get(shipment);
 
                 Console.WriteLine("Shipped Qty= " + shipment.ShippedQty.Value);
+
+                Console.WriteLine("Confirming the shipment.");
+                restClient.WaitInvoke(new ConfirmShipment(shipment));
             }
             catch (Exception e)
             {

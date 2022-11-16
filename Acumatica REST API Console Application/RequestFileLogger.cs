@@ -5,7 +5,7 @@ using RestSharp;
 
 namespace AcumaticaSoapLikeApiExample
 {
-    public static class RequestLogger
+    public static class RequestFileLogger
     {
         private const string RequestsLogPath = "RequestsLog.txt";
 
