@@ -454,10 +454,10 @@ namespace SOAPLikeWrapperForREST
                 .Select(GetFilterByStringCond));
 
             filters.AddRange(GetSearchFields<T, IntSearch>(entity)
-                .Select(field => field.Name + " eq " + ((IntSearch)field.Value).Value.ToString()));
+                .Select(field => $"{field.Name} eq {((IntSearch)field.Value).Value}"));
 
             filters.AddRange(GetSearchFields<T, BooleanSearch>(entity)
-                .Select(field => field.Name + " eq " + ((BooleanSearch)field.Value).Value.ToString().ToLower()));
+                .Select(field => $"{field.Name} eq {((BooleanSearch)field.Value).Value.ToString().ToLower()}"));
 
             filters.AddRange(GetSearchFields<T, DateTimeSearch>(entity)
                 .Select(GetFilterByDateTimeCond));
@@ -471,12 +471,12 @@ namespace SOAPLikeWrapperForREST
 
             switch (search.Condition)
             {
-                case StringCondition.IsNotNull: return field.Name + " ne null";
-                case StringCondition.Contains: return "substringof('" + search.Value.ToString() + "', " + field.Name + ")";
-                case StringCondition.StartsWith: return "startswith(" + field.Name + ", '" + search.Value.ToString() + "')";
-                case StringCondition.NotEqual: return field.Name + " ne '" + search.Value.ToString() + "'";
-                case StringCondition.DoesNotContain: return "substringof('" + search.Value.ToString() + "', " + field.Name + ") eq false";
-                case StringCondition.Equal: return field.Name + " eq '" + search.Value.ToString() + "'";
+                case StringCondition.IsNotNull: return $"{field.Name} ne null";
+                case StringCondition.Contains: return $"substringof('{search.Value}',{field.Name})";
+                case StringCondition.StartsWith: return $"startswith({field.Name}, '{search.Value}')";
+                case StringCondition.NotEqual: return $"{field.Name} ne '{search.Value}'";
+                case StringCondition.DoesNotContain: return $"substringof('{search.Value}', {field.Name}) eq false";
+                case StringCondition.Equal: return $"{field.Name} eq '{search.Value}'";
                 default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
             }
         }
@@ -487,8 +487,12 @@ namespace SOAPLikeWrapperForREST
 
             switch (search.Condition)
             {
-                case DateTimeCondition.Equal: return field.Name + " eq datetimeoffset'" + search.Value?.ToString("o") + "'";
-                case DateTimeCondition.IsGreaterThan: return field.Name + " gt datetimeoffset'" + search.Value?.ToString("o") + "'";
+                case DateTimeCondition.Equal: return $"{field.Name} eq datetimeoffset'{search.Value?.ToString("o")}'"; 
+                case DateTimeCondition.IsGreaterThan: return $"{field.Name} gt datetimeoffset'{search.Value?.ToString("o")}'";
+                case DateTimeCondition.IsLessThan: return $"field.Name lt datetimeoffset'{search.Value?.ToString("o")}'";
+                case DateTimeCondition.IsGreaterThanOrEqualsTo: return $"{field.Name} ge datetimeoffset'{search.Value?.ToString("o")}'";
+                case DateTimeCondition.IsLessThanOrEqualsTo: return $"{field.Name} le datetimeoffset'{search.Value?.ToString("o")}'";
+                case DateTimeCondition.IsBetween: return $"({field.Name} ge datetimeoffset'{search.Value?.ToString("o")}' and {field.Name} le datetimeoffset'{search.Value2?.ToString("o")}')";
                 default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
             }
         }
@@ -500,9 +504,9 @@ namespace SOAPLikeWrapperForREST
                 .Select(field =>
                 {
                     if (field.Type == typeof(StringValue))
-                        return field.Name + " eq " + "'" + field.Value.ToString() + "'";
+                        return $"{field.Name} eq '{field.Value}'";
                     else
-                        return field.Name + " eq " + field.Value.ToString();
+                        return $"{field.Name} eq {field.Value}";
                 }));
         }
 
