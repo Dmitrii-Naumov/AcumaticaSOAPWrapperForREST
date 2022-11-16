@@ -43,6 +43,10 @@ namespace SOAPLikeWrapperForREST
             AuthorizationApi = new AuthApi(siteURL, timeout, requestInterceptor, responseInterceptor);
             ProcessStartTime = new Dictionary<string, DateTime>();
             Timeout = timeout;
+            if (!endpointPath.StartsWith("entity"))
+            {
+                throw new ArgumentException("Incorrect endpoint path. The endpoint path must start with 'entity' keyword.");
+            }
             EndpointPath = endpointPath;
         }
 
