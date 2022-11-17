@@ -75,11 +75,23 @@ namespace SOAPLikeWrapperForREST
         #endregion
 
         #region Public Methods
-        public void SetBusinessDate(DateTime now)
+        /// <summary>
+        /// Sets the business date to the current instance of API client. 
+        /// The business date will be sent as a header in all Put requests.
+        /// </summary>
+        public void SetBusinessDate(DateTime businessDate)
         {
-            BusinessDate = now;
+            BusinessDate = businessDate;
         }
 
+        /// <summary>
+        /// Logs the current instance of API client to the Acumatica web service.
+        /// </summary>
+        /// <param name="username">Name of the user that is used to open a new session (required).</param>
+        /// <param name="password">User password (required).</param>
+        /// <param name="tenant">Defines the tenant to log in.</param>
+        /// <param name="branch">Defines the branch to log in.</param>
+        /// <param name="locale">Defines the locale to use for localizable data.</param>
         public void Login(string username, string password, string tenant = null, string branch = null, string locale = null)
         {
             CurrentConfiguration = AuthorizationApi.LogIn(
@@ -91,6 +103,11 @@ namespace SOAPLikeWrapperForREST
                     locale: locale));
             CurrentConfiguration.Timeout = Timeout;
         }
+
+        /// <summary>
+        /// Closes the open API session.
+        /// Rests the <see cref="BusinessDate"/>
+        /// </summary>
         public void Logout()
         {
             AuthorizationApi.TryLogout();

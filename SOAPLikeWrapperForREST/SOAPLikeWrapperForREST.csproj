@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>Acumatica.$(AssemblyName)</PackageId>
-	<Version>2.3.4</Version>
+	<Version>2.3.5</Version>
 	<Company>Acumatica</Company>
 	<Authors>Acumatica</Authors>
 	<Product>Acumatica.$(AssemblyName)</Product>
@@ -13,7 +13,7 @@
 	<RepositoryUrl>https://github.com/Acumatica/AcumaticaSOAPWrapperForREST</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-	<PackageReleaseNotes>Added support for List subentities</PackageReleaseNotes>
+	<PackageReleaseNotes>Added better xml documentation &amp; minor bugfixes</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
