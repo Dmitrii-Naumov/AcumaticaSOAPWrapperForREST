@@ -14,7 +14,15 @@
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 	<PackageReleaseNotes>Updated version of AcumaticaRESTClient nuget since it lost binary compatibility due to addition of optional parameter to method signatures</PackageReleaseNotes>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Acumatica.RESTClient" Version="2.5.0" />
