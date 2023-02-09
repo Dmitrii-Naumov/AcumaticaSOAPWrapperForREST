@@ -6,8 +6,10 @@ namespace SOAPLikeWrapperForREST
 	{
 		public DefaultSoapClient(string siteURL) : base(siteURL)
 		{ }
+        public DefaultSoapClient(string siteURL, int timeout) : base(siteURL, timeout)
+        { }
 
-		public void Dispose()
+        public void Dispose()
 		{
 			Logout();
 		}

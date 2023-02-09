@@ -3,9 +3,9 @@
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>Acumatica.$(AssemblyName)</PackageId>
-	<Version>2.5.0</Version>
+	<Version>2.5.1</Version>
 	<Company>Acumatica</Company>
-	<Authors>Acumatica</Authors>
+	<Authors>Dmitrii-Naumov</Authors>
 	<Product>Acumatica.$(AssemblyName)</Product>
 	<Description>A C# wrapper allowing to write SOAP-like queries for Acuamtica REST API</Description>
 	<Copyright>Acumatica</Copyright>
@@ -13,8 +13,12 @@
 	<RepositoryUrl>https://github.com/Acumatica/AcumaticaSOAPWrapperForREST</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-	<PackageReleaseNotes>Updated version of AcumaticaRESTClient nuget since it lost binary compatibility due to addition of optional parameter to method signatures</PackageReleaseNotes>
+	<PackageReleaseNotes>Introduced a new DefaultSoapClient constructor with timeout parameter</PackageReleaseNotes>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<Title>A wrapper for Acumatica REST API Client making it look like deprecated SOAP API</Title>
+	<PackageTags>Acumatica;REST;client;SOAP</PackageTags>
+	<IncludeSymbols>True</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
