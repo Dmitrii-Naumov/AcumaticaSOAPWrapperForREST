@@ -12,7 +12,7 @@ The Acumatica SOAP-Like wrapper For REST is available as a Nuget package:
 * https://www.nuget.org/packages/Acumatica.SOAPLikeWrapperForREST/
 
 Dependencies:
-* Acumatica.RESTClient (>= 2.5.0)
+* Acumatica.RESTClient (>= 3.0.2)
 (see https://github.com/Acumatica/AcumaticaRESTAPIClientForCSharp)
 
 

@@ -13,7 +13,7 @@
 	<RepositoryUrl>https://github.com/Acumatica/AcumaticaSOAPWrapperForREST</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-	<PackageReleaseNotes>Introduced a new DefaultSoapClient constructor with timeout parameter</PackageReleaseNotes>
+	<PackageReleaseNotes>Update to version 3 with the upgrade of REST Api Client to version 3</PackageReleaseNotes>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<Title>A wrapper for Acumatica REST API Client making it look like deprecated SOAP API</Title>
 	<PackageTags>Acumatica;REST;client;SOAP</PackageTags>
