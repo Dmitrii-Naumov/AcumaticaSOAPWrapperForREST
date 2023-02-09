@@ -229,7 +229,7 @@ namespace SOAPLikeWrapperForREST
               where T : Entity
         {
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
-            string invokeResult = api.InvokeAction(action);
+            string invokeResult = api.InvokeAction(action, businessDate: BusinessDate);
             if (ProcessStartTime.ContainsKey(invokeResult))
             { }
             else

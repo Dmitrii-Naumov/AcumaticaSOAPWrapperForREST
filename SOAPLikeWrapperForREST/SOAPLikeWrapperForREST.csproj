@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>Acumatica.$(AssemblyName)</PackageId>
-	<Version>3.0.2-alpha</Version>
+	<Version>3.1.0-alpha</Version>
 	<Company>Acumatica</Company>
 	<Authors>Dmitrii-Naumov</Authors>
 	<Product>Acumatica.$(AssemblyName)</Product>
@@ -13,7 +13,7 @@
 	<RepositoryUrl>https://github.com/Acumatica/AcumaticaSOAPWrapperForREST</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-	<PackageReleaseNotes>Update to version 3 with the upgrade of REST Api Client to version 3</PackageReleaseNotes>
+	<PackageReleaseNotes>Action invocation will now correctly propage date set for SoapLikeClient</PackageReleaseNotes>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<Title>A wrapper for Acumatica REST API Client making it look like deprecated SOAP API</Title>
 	<PackageTags>Acumatica;REST;client;SOAP</PackageTags>
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Acumatica.RESTClient" Version="3.0.2-alpha" />
+    <PackageReference Include="Acumatica.RESTClient" Version="3.1.0-alpha" />
   </ItemGroup>
 
 </Project>
