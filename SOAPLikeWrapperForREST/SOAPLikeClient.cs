@@ -7,8 +7,8 @@ using System.Runtime.CompilerServices;
 
 using Acumatica.Auth.Api;
 using Acumatica.Auth.Model;
-using Acumatica.RESTClient.Api;
 using Acumatica.RESTClient.Client;
+using Acumatica.RESTClient.FileApi;
 using Acumatica.RESTClient.Model;
 
 using RestSharp;

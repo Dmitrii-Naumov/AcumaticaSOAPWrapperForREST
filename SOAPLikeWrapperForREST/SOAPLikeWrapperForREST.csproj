@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>Acumatica.$(AssemblyName)</PackageId>
-	<Version>2.5.1</Version>
+	<Version>3.0.2-alpha</Version>
 	<Company>Acumatica</Company>
 	<Authors>Dmitrii-Naumov</Authors>
 	<Product>Acumatica.$(AssemblyName)</Product>
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Acumatica.RESTClient" Version="2.5.0" />
+    <PackageReference Include="Acumatica.RESTClient" Version="3.0.2-alpha" />
   </ItemGroup>
 
 </Project>
