@@ -97,10 +97,10 @@ namespace SOAPLikeWrapperForREST
         {
             CurrentConfiguration = AuthorizationApi.LogIn(
                 new Credentials(
-                    name: username, 
-                    password: password, 
-                    tenant: tenant, 
-                    branch: branch, 
+                    name: username,
+                    password: password,
+                    tenant: tenant,
+                    branch: branch,
                     locale: locale));
             CurrentConfiguration.Timeout = Timeout;
         }
@@ -171,7 +171,7 @@ namespace SOAPLikeWrapperForREST
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             var result = api.PutEntity(entity,
                 expand: ComposeExpands(entity),
-                filter: ComposeFilters(entity), 
+                filter: ComposeFilters(entity),
                 businessDate: BusinessDate); ;
             result.ReturnBehavior = entity.ReturnBehavior;
             return result;
@@ -362,25 +362,29 @@ namespace SOAPLikeWrapperForREST
             }
         }
 
-        protected IEnumerable<EntityField> GetPossibleKeyFields<T>(T entity)
-            where T : Entity
+        protected IEnumerable<EntityField> GetPossibleKeyFields(Entity entity)
         {
             foreach (var field in entity.GetType().GetProperties())
             {
-                if (field.PropertyType == typeof(StringValue))
+                var fieldValue = field.GetValue(entity);
+                if (fieldValue != null)
                 {
-                    yield return new EntityField(field.PropertyType, ((StringValue)field.GetValue(entity))?.Value, field.Name);
-                }
-                if (field.PropertyType == typeof(IntValue))
-                {
-                    yield return new EntityField(field.PropertyType, ((IntValue)field.GetValue(entity))?.Value, field.Name);
-                }
-                if (field.PropertyType == typeof(LongValue))
-                {
-                    yield return new EntityField(field.PropertyType, ((LongValue)field.GetValue(entity))?.Value, field.Name);
+                    switch (fieldValue.GetType().Name)
+                    {
+                        case nameof(StringValue):
+                            yield return new EntityField(field.PropertyType, ((StringValue)field.GetValue(entity))?.Value, field.Name);
+                            break;
+                        case nameof(IntValue):
+                            yield return new EntityField(field.PropertyType, ((IntValue)field.GetValue(entity))?.Value, field.Name);
+                            break;
+                        case nameof(LongValue):
+                            yield return new EntityField(field.PropertyType, ((LongValue)field.GetValue(entity))?.Value, field.Name);
+                            break;
+                    }
                 }
             }
         }
+    
 
         protected IEnumerable<string> GetSubEntitiesWithReturnBehavior(Type entityType, Entity entity, bool returnAll = false)
         {
