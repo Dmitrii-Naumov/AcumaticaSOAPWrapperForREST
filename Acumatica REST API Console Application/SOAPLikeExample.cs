@@ -21,6 +21,10 @@ namespace AcumaticaSoapLikeApiExample
                 restClient.Login(username, password, tenant, branch, locale);
                 Console.WriteLine("Logged In");
 
+
+                Contact contactToSearch = new Contact() { ContactID = new IntSearch() { Value = 123 } };
+
+                restClient.Get(contactToSearch);
                 Shipment shipment = new Shipment()
                 {
                     ShipmentNbr = new StringSearch() { Value = "004372" },

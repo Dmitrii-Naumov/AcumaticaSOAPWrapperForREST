@@ -544,7 +544,7 @@ namespace SOAPLikeWrapperForREST
             {
                 case BooleanCondition.IsNotNull: return $"{field.Name} ne null";
                 case BooleanCondition.IsNull: return $"{field.Name} eq null";
-                case BooleanCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case BooleanCondition.Equal: return $"{field.Name} eq {search.Value}";
                 case BooleanCondition.NotEqual: return $"{field.Name} ne {search.Value}";
                 default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
             }
@@ -558,7 +558,7 @@ namespace SOAPLikeWrapperForREST
             {
                 case DecimalCondition.IsNotNull: return $"{field.Name} ne null";
                 case DecimalCondition.IsNull: return $"{field.Name} eq null";
-                case DecimalCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case DecimalCondition.Equal: return $"{field.Name} eq {search.Value}";
                 case DecimalCondition.NotEqual: return $"{field.Name} ne {search.Value}";
                 case DecimalCondition.IsBetween: return $"({field.Name} ge {search.Value} and {field.Name} le {search.Value2})";
                 case DecimalCondition.IsGreaterThan: return $"{field.Name} gt {search.Value}";
@@ -577,7 +577,7 @@ namespace SOAPLikeWrapperForREST
             {
                 case IntCondition.IsNotNull: return $"{field.Name} ne null";
                 case IntCondition.IsNull: return $"{field.Name} eq null";
-                case IntCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case IntCondition.Equal: return $"{field.Name} eq {search.Value}";
                 case IntCondition.NotEqual: return $"{field.Name} ne {search.Value}";
                 case IntCondition.IsBetween: return $"({field.Name} ge {search.Value} and {field.Name} le {search.Value2})"; 
                 case IntCondition.IsGreaterThan: return $"{field.Name} gt {search.Value}";
@@ -596,7 +596,7 @@ namespace SOAPLikeWrapperForREST
             {
                 case LongCondition.IsNotNull: return $"{field.Name} ne null";
                 case LongCondition.IsNull: return $"{field.Name} eq null";
-                case LongCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case LongCondition.Equal: return $"{field.Name} eq {search.Value}";
                 case LongCondition.NotEqual: return $"{field.Name} ne {search.Value}";
                 case LongCondition.IsBetween: return $"({field.Name} ge {search.Value} and {field.Name} le {search.Value2})";
                 case LongCondition.IsGreaterThan: return $"{field.Name} gt {search.Value}";
@@ -615,7 +615,7 @@ namespace SOAPLikeWrapperForREST
             {
                 case GuidCondition.IsNotNull: return $"{field.Name} ne null";
                 case GuidCondition.IsNull: return $"{field.Name} eq null";
-                case GuidCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case GuidCondition.Equal: return $"{field.Name} eq {search.Value}";
                 case GuidCondition.NotEqual: return $"{field.Name} ne {search.Value}";
                 default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
             }
