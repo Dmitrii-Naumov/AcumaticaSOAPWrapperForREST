@@ -41,8 +41,13 @@ namespace AcumaticaSoapLikeApiExample
 
                 Console.WriteLine("Shipped Qty= " + shipment.ShippedQty.Value);
 
+
+                Console.WriteLine("Get Sales Order custom fields schema");
+                restClient.GetCustomFieldSchema(new SalesOrder());
+
                 Console.WriteLine("Confirming the shipment.");
                 restClient.WaitInvoke(new ConfirmShipment(shipment));
+
             }
             catch (Exception e)
             {
