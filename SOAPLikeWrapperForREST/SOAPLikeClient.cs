@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -128,10 +129,10 @@ namespace SOAPLikeWrapperForREST
         }
 
         [Obsolete("Get method is for backward compatibility with SOAP only. Use one of the following REST methods instead: GetList, GetByKeys, GetByID")]
-        public T Get<T>(T entity)
+        public T Get<T>(T entity, bool retrieveFiles = false)
             where T : Entity
         {
-            string expand = ComposeExpands(entity);
+            string expand = ComposeExpands(entity, retrieveFiles);
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             if (entity.ID.HasValue)
             {
@@ -176,20 +177,44 @@ namespace SOAPLikeWrapperForREST
         public void PutFiles<T>(List<string> keys, File[] files)
             where T : Entity
         {
-            if (files.Length > 1)
+            foreach (var file in files)
             {
-                throw new NotImplementedException("Only one file attachment at a time is supported.");
-            }
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
-            api.PutFile(keys, files[0].Name, files[0].Content);
+                api.PutFile(keys, file.Name, file.Content);
+            }
         }
+
         [Obsolete("GetFiles method is for backward compatibility with SOAP only. Use one of the following REST methods instead: FileApi.GetFile")]
         public File[] GetFiles<T>(T entity)
             where T : Entity
         {
+            var record = Get(entity, retrieveFiles: true);
+            if (record?.Files == null)
+            {
+                throw new ApiException(500, "Failed to retrieve files");
+            }
+            if (record.Files.Count == 0)
+            {
+                return new File[0];
+            }
+
+            var filesArray = new File[record.Files.Count];
             FileApi api = new FileApi(CurrentConfiguration);
 
-            return new File[] { };
+            for (int i = 0; i < filesArray.Length; i++)
+            {
+                filesArray[i] = new File();
+                filesArray[i].Name = record.Files[i].Filename;
+                using (var sourceStream = api.GetFile(record.Files[i]))
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        sourceStream.CopyTo(memoryStream);
+                        filesArray[i].Content = memoryStream.ToArray();
+                    }
+                }
+            }
+            return filesArray;
         }
 
         [Obsolete("Delete method is for backward compatibility with SOAP only. Use one of the following REST methods instead: DeleteByID, DeleteByKeys")]
@@ -531,9 +556,11 @@ namespace SOAPLikeWrapperForREST
                 }));
         }
 
-        protected string ComposeExpands<T>(T entity) where T : Entity
+        protected string ComposeExpands<T>(T entity, bool addFiles = false) where T : Entity
         {
-            return string.Join(",", GetSubEntitiesWithReturnBehavior(entity.GetType(), entity));
+            return string.Join(",",
+                GetSubEntitiesWithReturnBehavior(entity.GetType(), entity)
+                .Concat(addFiles ? new[] { "files" } : new string[0]));
         }
         protected int GetProcessingSeconds(string invokeResult)
         {
