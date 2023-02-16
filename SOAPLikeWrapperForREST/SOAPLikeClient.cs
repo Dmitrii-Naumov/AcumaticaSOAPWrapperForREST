@@ -140,7 +140,7 @@ namespace SOAPLikeWrapperForREST
                 resultByID.ReturnBehavior = entity.ReturnBehavior;
                 return resultByID;
             }
-            string filter = ComposeFilter(entity);
+            string filter = ComposeFilters(entity, true);
             var list = api.GetList(filter: filter);
             if (list.Count > 1)
             {
@@ -160,7 +160,7 @@ namespace SOAPLikeWrapperForREST
             string expand = ComposeExpands(entity);
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
 
-            string filter = ComposeFilterForGetList(entity);
+            string filter = ComposeFilters(entity);
             var result = api.GetList(filter: filter, expand: expand, skip: skip, top: top);
 
             return result.ToArray();
@@ -169,7 +169,10 @@ namespace SOAPLikeWrapperForREST
             where T : Entity
         {
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
-            var result = api.PutEntity(entity, expand: ComposeExpands(entity), businessDate: BusinessDate);
+            var result = api.PutEntity(entity,
+                expand: ComposeExpands(entity),
+                filter: ComposeFilters(entity), 
+                businessDate: BusinessDate); ;
             result.ReturnBehavior = entity.ReturnBehavior;
             return result;
         }
@@ -179,7 +182,7 @@ namespace SOAPLikeWrapperForREST
         {
             foreach (var file in files)
             {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+                SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
                 api.PutFile(keys, file.Name, file.Content);
             }
         }
@@ -331,8 +334,7 @@ namespace SOAPLikeWrapperForREST
         protected DateTime? BusinessDate;
 
 
-        protected IEnumerable<EntityField> GetSearchFields<T, SearchType>(T entity)
-           where T : Entity
+        protected IEnumerable<EntityField> GetSearchFields<SearchType>(Entity entity)
         {
             Type[] searchTypes = new Type[] { typeof(SearchType) };
 
@@ -350,15 +352,11 @@ namespace SOAPLikeWrapperForREST
             {
                 if (linkedEntity.Value != null)
                 {
-                    foreach (var field in linkedEntity.Value.GetType().GetProperties())
+                    // search recursively for all Linked entities inside other linked entities
+                    foreach (var field in GetSearchFields<SearchType>(linkedEntity.Value))
                     {
-                        if (field.GetValue(linkedEntity.Value) != null)
-                        {
-                            if (searchTypes.Contains(field.GetValue(linkedEntity.Value).GetType()))
-                            {
-                                yield return new EntityField(field.GetValue(linkedEntity.Value).GetType(), (SearchType)field.GetValue(linkedEntity.Value), linkedEntity.Name + "/" + field.Name);
-                            }
-                        }
+                        field.Name = $"{linkedEntity.Name}/{field.Name}";
+                        yield return field;
                     }
                 }
             }
@@ -492,26 +490,129 @@ namespace SOAPLikeWrapperForREST
             }
         }
 
-        protected string ComposeFilterForGetList<T>(T entity) where T : Entity
+        protected string ComposeFilters<T>(T entity, bool addPossibleKeyFields = false) where T : Entity
+        {
+            return string.Join(" and ",
+                ComposeFiltersInternal(entity)
+                .Concat(addPossibleKeyFields ?
+                    ComposeFiltersForPossibleKeyFieldsInternal(entity)
+                    : new string[0]));
+        }
+
+        private IEnumerable<string> ComposeFiltersInternal(Entity entity)
         {
             List<string> filters = new List<string>();
 
-            filters.AddRange(GetSearchFields<T, StringSearch>(entity)
-                .Select(GetFilterByStringCond));
+            filters.AddRange(GetSearchFields<StringSearch>(entity)
+                .Select(GetFilterByStringCondition));
 
-            filters.AddRange(GetSearchFields<T, IntSearch>(entity)
-                .Select(field => $"{field.Name} eq {((IntSearch)field.Value).Value}"));
+            filters.AddRange(GetSearchFields<IntSearch>(entity)
+                .Select(GetFilterByIntCondition));
 
-            filters.AddRange(GetSearchFields<T, BooleanSearch>(entity)
-                .Select(field => $"{field.Name} eq {((BooleanSearch)field.Value).Value.ToString().ToLower()}"));
+            filters.AddRange(GetSearchFields<LongSearch>(entity)
+                .Select(GetFilterByLongCondition));
 
-            filters.AddRange(GetSearchFields<T, DateTimeSearch>(entity)
-                .Select(GetFilterByDateTimeCond));
+            filters.AddRange(GetSearchFields<GuidSearch>(entity)
+                .Select(GetFilterByGuidCondition));
 
-            return string.Join(" and ", filters);
+            filters.AddRange(GetSearchFields<DecimalSearch>(entity)
+                .Select(GetFilterByDecimalCondition));
+
+            filters.AddRange(GetSearchFields<BooleanSearch>(entity)
+                .Select(GetFilterByBooleanCondition));
+
+            filters.AddRange(GetSearchFields<DateTimeSearch>(entity)
+                .Select(GetFilterByDateTimeCondition));
+            return filters;
         }
 
-        private string GetFilterByStringCond(EntityField field)
+        private string GetFilterByBooleanCondition(EntityField field)
+        {
+            BooleanSearch search = (BooleanSearch)field.Value;
+
+            switch (search.Condition)
+            {
+                case BooleanCondition.IsNotNull: return $"{field.Name} ne null";
+                case BooleanCondition.IsNull: return $"{field.Name} eq null";
+                case BooleanCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case BooleanCondition.NotEqual: return $"{field.Name} ne {search.Value}";
+                default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
+            }
+        }
+
+        private string GetFilterByDecimalCondition(EntityField field)
+        {
+            DecimalSearch search = (DecimalSearch)field.Value;
+
+            switch (search.Condition)
+            {
+                case DecimalCondition.IsNotNull: return $"{field.Name} ne null";
+                case DecimalCondition.IsNull: return $"{field.Name} eq null";
+                case DecimalCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case DecimalCondition.NotEqual: return $"{field.Name} ne {search.Value}";
+                case DecimalCondition.IsBetween: return $"({field.Name} ge {search.Value} and {field.Name} le {search.Value2})";
+                case DecimalCondition.IsGreaterThan: return $"{field.Name} gt {search.Value}";
+                case DecimalCondition.IsGreaterThanOrEqualsTo: return $"{field.Name} ge {search.Value}";
+                case DecimalCondition.IsLessThan: return $"{field.Name} lt {search.Value}";
+                case DecimalCondition.IsLessThanOrEqualsTo: return $"{field.Name} le {search.Value}";
+                default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
+            }
+        }
+
+        private string GetFilterByIntCondition(EntityField field)
+        {
+            IntSearch search = (IntSearch)field.Value;
+
+            switch (search.Condition)
+            {
+                case IntCondition.IsNotNull: return $"{field.Name} ne null";
+                case IntCondition.IsNull: return $"{field.Name} eq null";
+                case IntCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case IntCondition.NotEqual: return $"{field.Name} ne {search.Value}";
+                case IntCondition.IsBetween: return $"({field.Name} ge {search.Value} and {field.Name} le {search.Value2})"; 
+                case IntCondition.IsGreaterThan: return $"{field.Name} gt {search.Value}";
+                case IntCondition.IsGreaterThanOrEqualsTo: return $"{field.Name} ge {search.Value}";
+                case IntCondition.IsLessThan: return $"{field.Name} lt {search.Value}";
+                case IntCondition.IsLessThanOrEqualsTo: return $"{field.Name} le {search.Value}";
+                default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
+            }
+        }
+
+        private string GetFilterByLongCondition(EntityField field)
+        {
+            LongSearch search = (LongSearch)field.Value;
+
+            switch (search.Condition)
+            {
+                case LongCondition.IsNotNull: return $"{field.Name} ne null";
+                case LongCondition.IsNull: return $"{field.Name} eq null";
+                case LongCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case LongCondition.NotEqual: return $"{field.Name} ne {search.Value}";
+                case LongCondition.IsBetween: return $"({field.Name} ge {search.Value} and {field.Name} le {search.Value2})";
+                case LongCondition.IsGreaterThan: return $"{field.Name} gt {search.Value}";
+                case LongCondition.IsGreaterThanOrEqualsTo: return $"{field.Name} ge {search.Value}";
+                case LongCondition.IsLessThan: return $"{field.Name} lt {search.Value}";
+                case LongCondition.IsLessThanOrEqualsTo: return $"{field.Name} le {search.Value}";
+                default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
+            }
+        }
+
+        private string GetFilterByGuidCondition(EntityField field)
+        {
+            GuidSearch search = (GuidSearch)field.Value;
+
+            switch (search.Condition)
+            {
+                case GuidCondition.IsNotNull: return $"{field.Name} ne null";
+                case GuidCondition.IsNull: return $"{field.Name} eq null";
+                case GuidCondition.Equal: return $"{field.Name} eq {search.Value})";
+                case GuidCondition.NotEqual: return $"{field.Name} ne {search.Value}";
+                default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
+            }
+        }
+
+
+        private string GetFilterByStringCondition(EntityField field)
         {
             StringSearch search = (StringSearch)field.Value;
 
@@ -527,7 +628,7 @@ namespace SOAPLikeWrapperForREST
             }
         }
 
-        private static string GetFilterByDateTimeCond(EntityField field)
+        private static string GetFilterByDateTimeCondition(EntityField field)
         {
             DateTimeSearch search = (DateTimeSearch)field.Value;
 
@@ -543,17 +644,17 @@ namespace SOAPLikeWrapperForREST
             }
         }
 
-        protected string ComposeFilter<T>(T entity) where T : Entity
+        private IEnumerable<string> ComposeFiltersForPossibleKeyFieldsInternal<T>(T entity) where T : Entity
         {
-            return string.Join(" and ", GetPossibleKeyFields(entity)
-                .Where(f => f.Value != null)
-                .Select(field =>
-                {
-                    if (field.Type == typeof(StringValue))
-                        return $"{field.Name} eq '{field.Value}'";
-                    else
-                        return $"{field.Name} eq {field.Value}";
-                }));
+            return GetPossibleKeyFields(entity)
+                            .Where(f => f.Value != null)
+                            .Select(field =>
+                            {
+                                if (field.Type == typeof(StringValue))
+                                    return $"{field.Name} eq '{field.Value}'";
+                                else
+                                    return $"{field.Name} eq {field.Value}";
+                            });
         }
 
         protected string ComposeExpands<T>(T entity, bool addFiles = false) where T : Entity
