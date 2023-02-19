@@ -162,10 +162,10 @@ namespace SOAPLikeWrapperForREST
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
 
             T result = api.GetById(GetRecordIDViaGetList(entity, api),
-                filter: FiltersHelper.ComposeFilters(entity),
-                expand: ExpandsHelper.ComposeExpands(entity),
-                custom: CustomFieldsHelper.ComposeCustomParameter(entity),
-                select: SelectsHelper.ComposeSelects(entity)
+                filter: ComposeFilters(entity),
+                expand: ComposeExpands(entity),
+                custom: ComposeCustomParameters(entity),
+                select: ComposeSelects(entity)
                 );
             result.ReturnBehavior = entity.ReturnBehavior;
             return result;
@@ -179,11 +179,11 @@ namespace SOAPLikeWrapperForREST
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
 
             var result = api.GetList(
-                filter: FiltersHelper.ComposeFilters(entity),
-                expand: ExpandsHelper.ComposeExpands(entity),
-                custom: CustomFieldsHelper.ComposeCustomParameter(entity),
-                select: SelectsHelper.ComposeSelects(entity),
-                skip: skip, 
+                filter: ComposeFilters(entity),
+                expand: ComposeExpands(entity),
+                custom: ComposeCustomParameters(entity),
+                select: ComposeSelects(entity),
+                skip: skip,
                 top: top,
                 customHeaders: customHeaders);
             foreach (var record in result)
@@ -192,15 +192,17 @@ namespace SOAPLikeWrapperForREST
             }
             return result.ToArray();
         }
+
+
         public T Put<T>(T entity)
             where T : Entity
         {
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
             var result = api.PutEntity(entity,
-                filter: FiltersHelper.ComposeFilters(entity),
-                expand: ExpandsHelper.ComposeExpands(entity),
-                custom: CustomFieldsHelper.ComposeCustomParameter(entity),
-                select: SelectsHelper.ComposeSelects(entity),
+                filter: ComposeFilters(entity),
+                expand: ComposeExpands(entity),
+                custom: ComposeCustomParameters(entity),
+                select: ComposeSelects(entity),
                 businessDate: BusinessDate); ;
             result.ReturnBehavior = entity.ReturnBehavior;
             return result;
@@ -385,8 +387,26 @@ namespace SOAPLikeWrapperForREST
         #endregion
 
         #region Implementation
+        protected virtual string ComposeFilters<T>(T entity, bool addPossibleKeyFields = false) where T : Entity
+        {
+            return FiltersHelper.ComposeFilters(entity, addPossibleKeyFields);
+        }
 
-        private static Guid GetRecordIDViaGetList<T>(T entity, SOAPLikeEntityAPI<T> api) where T : Entity
+        protected virtual string ComposeExpands<T>(T entity) where T : Entity
+        {
+            return ExpandsHelper.ComposeExpands(entity);
+        }
+        protected virtual string ComposeSelects<T>(T entity) where T : Entity
+        {
+            return SelectsHelper.ComposeSelects(entity);
+        }
+
+        protected virtual string ComposeCustomParameters<T>(T entity) where T : Entity
+        {
+            return CustomFieldsHelper.ComposeCustomParameter(entity);
+        }
+
+        private Guid GetRecordIDViaGetList<T>(T entity, SOAPLikeEntityAPI<T> api) where T : Entity
         {
             if (entity.ID.HasValue)
             {
@@ -394,7 +414,7 @@ namespace SOAPLikeWrapperForREST
             }
             else
             {
-                string filter = FiltersHelper.ComposeFilters(entity, true);
+                string filter = ComposeFilters(entity, true);
                 var list = api.GetList(filter: filter);
                 if (list.Count > 1)
                 {
