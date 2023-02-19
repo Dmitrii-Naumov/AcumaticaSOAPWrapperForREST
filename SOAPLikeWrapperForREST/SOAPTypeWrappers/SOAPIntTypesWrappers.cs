@@ -1,5 +1,7 @@
 ﻿using Acumatica.RESTClient.Model;
 
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
+
 namespace SOAPLikeWrapperForREST
 {
     public enum IntCondition
@@ -25,6 +27,9 @@ namespace SOAPLikeWrapperForREST
         public int? Value2 { get; set; }
     }
     public partial class IntReturn : IntValue
+    {
+    }
+    public partial class IntSkip : IntValue, ISkipValueMarker
     {
     }
 }

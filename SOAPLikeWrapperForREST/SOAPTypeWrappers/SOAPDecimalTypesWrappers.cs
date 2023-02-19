@@ -1,8 +1,13 @@
 ﻿using Acumatica.RESTClient.Model;
 
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
+
 namespace SOAPLikeWrapperForREST
 {
     public partial class DecimalReturn : DecimalValue
+    {
+    }
+    public partial class DecimalSkip : DecimalValue, ISkipValueMarker
     {
     }
     public partial class DecimalSearch : DecimalValue

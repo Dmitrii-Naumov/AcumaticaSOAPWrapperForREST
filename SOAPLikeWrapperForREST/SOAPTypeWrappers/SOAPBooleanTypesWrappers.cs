@@ -1,8 +1,13 @@
 ﻿using Acumatica.RESTClient.Model;
 
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
+
 namespace SOAPLikeWrapperForREST
 {
     public partial class BooleanReturn : BooleanValue
+    {
+    }
+    public partial class BooleanSkip : BooleanValue, ISkipValueMarker
     {
     }
 

@@ -1,5 +1,7 @@
 ﻿using Acumatica.RESTClient.Model;
 
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
+
 namespace SOAPLikeWrapperForREST
 {
 
@@ -32,7 +34,7 @@ namespace SOAPLikeWrapperForREST
     public partial class StringReturn : StringValue
     {
     }
-    public partial class StringSkip : StringValue
+    public partial class StringSkip : StringValue, ISkipValueMarker
     {
     }
 

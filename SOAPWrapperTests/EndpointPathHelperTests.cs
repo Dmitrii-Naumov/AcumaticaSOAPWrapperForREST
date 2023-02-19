@@ -1,11 +1,10 @@
 using Acumatica.RESTClient.Api;
 using Acumatica.RESTClient.Model;
-
-using SOAPLikeWrapperForREST;
+using SOAPLikeWrapperForREST.Helpers;
 
 namespace SOAPWrapperTests
 {
-    public class SOAPLikeClientTests
+    public class EndpointPathHelperTests
     {
         [Theory]
         [InlineData("http://localhost/22r203/(W(11038))/entity/Default/22.200.001/swagger.json", 
@@ -19,9 +18,9 @@ namespace SOAPWrapperTests
                     "entity/Default/18.200.001")]
         public void URLHelper_TakesPartsOfURLProperly(string fullURL, string expectedSiteURL, string expectedEndpointPath)
         {
-            string cleanUrl = SOAPLikeClient.TrimRedundantPartsOfTheURL(fullURL);
-            string siteURL= SOAPLikeClient.TakeSiteURL(cleanUrl);
-            string endpointPath = SOAPLikeClient.TakeEndpointPath(cleanUrl);
+            string cleanUrl = EndpointPathHelper.TrimRedundantPartsOfTheURL(fullURL);
+            string siteURL= EndpointPathHelper.TakeSiteURL(cleanUrl);
+            string endpointPath = EndpointPathHelper.TakeEndpointPath(cleanUrl);
             siteURL.Should().Be(expectedSiteURL);
             endpointPath.Should().Be(expectedEndpointPath);
         }

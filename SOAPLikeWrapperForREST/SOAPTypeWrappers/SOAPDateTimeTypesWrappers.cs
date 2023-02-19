@@ -1,4 +1,6 @@
 ﻿using Acumatica.RESTClient.Model;
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
+
 using System;
 
 namespace SOAPLikeWrapperForREST
@@ -12,6 +14,8 @@ namespace SOAPLikeWrapperForREST
         public DateTime? Value2 { get; set; }
     }
     public partial class DateTimeReturn : DateTimeValue
+    { }
+    public partial class DateTimeSkip : DateTimeValue, ISkipValueMarker
     { }
 
     public enum DateTimeCondition

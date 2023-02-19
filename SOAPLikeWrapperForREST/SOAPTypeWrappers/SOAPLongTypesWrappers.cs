@@ -1,5 +1,7 @@
 ﻿using Acumatica.RESTClient.Model;
 
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
+
 namespace SOAPLikeWrapperForREST
 {
     public enum LongCondition
@@ -21,7 +23,10 @@ namespace SOAPLikeWrapperForREST
 
         public long? Value2 { get; set; }
     }
-    public partial class LongReturn : IntValue
+    public partial class LongReturn : LongValue
+    {
+    }
+    public partial class LongSkip : LongValue, ISkipValueMarker
     {
     }
 }

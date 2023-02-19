@@ -1,4 +1,6 @@
 ﻿using Acumatica.RESTClient.Model;
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
+
 using System;
 
 namespace SOAPLikeWrapperForREST
@@ -23,5 +25,11 @@ namespace SOAPLikeWrapperForREST
             get;
             set;
         }
+    }
+    public partial class GuidReturn : GuidValue
+    {
+    }
+    public partial class GuidSkip : GuidValue, ISkipValueMarker
+    {
     }
 }
