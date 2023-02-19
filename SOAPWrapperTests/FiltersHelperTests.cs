@@ -8,6 +8,16 @@ namespace SOAPWrapperTests
     public class FiltersHelperTests
     {
         [Fact]
+        public void ComposeFilters_ComposesFilterForBoolSearch()
+        {
+            var testEntity = new TestEntityWitBoolField()
+            {
+                TestField8 = new BooleanSearch() { Value = true }
+            };
+            FiltersHelper.ComposeFilters(testEntity)
+                .Should().Be($"{nameof(TestEntityWitBoolField.TestField8)} eq true");
+        }
+        [Fact]
         public void ComposeFilters_ComposesFilterForIntSearch()
         {
             var testEntity = new TestEntityWithIntField()

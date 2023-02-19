@@ -8,6 +8,10 @@ using Acumatica.RESTClient.Model;
 
 namespace SOAPWrapperTests
 {
+    class TestEntityWitBoolField : Entity_v4
+    {
+        public BooleanValue TestField8 { get; set; }
+    }
     class TestEntityWithoutDetails : Entity_v4
     {
         public StringValue TestField1 { get; set; }

@@ -73,8 +73,8 @@ namespace SOAPLikeWrapperForREST.Helpers
             {
                 case BooleanCondition.IsNotNull: return $"{field.Name} ne null";
                 case BooleanCondition.IsNull: return $"{field.Name} eq null";
-                case BooleanCondition.Equal: return $"{field.Name} eq {search.Value}";
-                case BooleanCondition.NotEqual: return $"{field.Name} ne {search.Value}";
+                case BooleanCondition.Equal: return $"{field.Name} eq {search.Value.ToString().ToLower()}";
+                case BooleanCondition.NotEqual: return $"{field.Name} ne {search.Value.ToString().ToLower()}";
                 default: throw new NotImplementedException($"Condition {search.Condition} is not implemented");
             }
         }
