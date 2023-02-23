@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>Acumatica.$(AssemblyName)</PackageId>
-	<Version>3.5.0</Version>
+	<Version>3.5.1</Version>
 	<Company>Acumatica</Company>
 	<Authors>Dmitrii-Naumov</Authors>
 	<Product>Acumatica.$(AssemblyName)</Product>
@@ -13,7 +13,7 @@
 	<RepositoryUrl>https://github.com/Acumatica/AcumaticaSOAPWrapperForREST</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-	<PackageReleaseNotes>Updated version of the dependencies</PackageReleaseNotes>
+	<PackageReleaseNotes>Removed misleading paramter from Get Method</PackageReleaseNotes>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<Title>A wrapper for Acumatica REST API Client making it look like deprecated SOAP API</Title>
 	<PackageTags>Acumatica;REST;client;SOAP</PackageTags>
