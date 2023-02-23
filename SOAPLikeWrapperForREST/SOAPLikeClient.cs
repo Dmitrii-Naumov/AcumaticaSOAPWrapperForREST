@@ -151,12 +151,11 @@ namespace SOAPLikeWrapperForREST
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
-        /// <param name="retrieveFiles"></param>
         /// <remarks>Can execute several REST API calls internally</remarks>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         [Obsolete("Get method is for backward compatibility with SOAP only. Use one of the following REST methods instead: GetList, GetByKeys, GetByID")]
-        public T Get<T>(T entity, bool retrieveFiles = false)
+        public T Get<T>(T entity)
             where T : Entity
         {
             SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
