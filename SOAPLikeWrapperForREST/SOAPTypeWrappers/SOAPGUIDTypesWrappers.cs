@@ -1,4 +1,5 @@
-﻿using Acumatica.RESTClient.Model;
+﻿using Acumatica.RESTClient.ContractBasedApi.Model;
+
 using SOAPLikeWrapperForREST.SOAPTypeWrappers;
 
 using System;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Acumatica.RESTClient.Model;
+using Acumatica.RESTClient.ContractBasedApi.Model;
 
 namespace SOAPLikeWrapperForREST
 {

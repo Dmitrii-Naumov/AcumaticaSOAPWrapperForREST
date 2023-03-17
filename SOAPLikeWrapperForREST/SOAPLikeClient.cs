@@ -7,11 +7,10 @@ using Acumatica.Auth.Api;
 using Acumatica.Auth.Model;
 using Acumatica.RESTClient.Client;
 using Acumatica.RESTClient.FileApi;
-using Acumatica.RESTClient.Model;
-
-using RestSharp;
+using Acumatica.RESTClient.ContractBasedApi.Model;
 
 using SOAPLikeWrapperForREST.Helpers;
+using System.Net.Http;
 
 [assembly: InternalsVisibleTo("SOAPWrapperTests")]
 
@@ -42,8 +41,8 @@ namespace SOAPLikeWrapperForREST
             string siteURL, 
             string endpointPath, 
             int timeout = 10000, 
-            Action<RestRequest, RestClient> requestInterceptor = null, 
-            Action<RestRequest, RestResponse, RestClient> responseInterceptor = null)
+            Action<HttpRequestMessage, HttpClient> requestInterceptor = null, 
+            Action<HttpResponseMessage, HttpClient> responseInterceptor = null)
         {
             AuthorizationApi = new AuthApi(siteURL, timeout, requestInterceptor, responseInterceptor);
             ProcessStartTime = new Dictionary<string, DateTime>();
@@ -72,9 +71,9 @@ namespace SOAPLikeWrapperForREST
         /// </param>
         public SOAPLikeClient(string endpointURL, 
             int timeout = 10000, 
-            Action<RestRequest, RestClient> 
+            Action<HttpRequestMessage, HttpClient> 
             requestInterceptor = null, 
-            Action<RestRequest, RestResponse, RestClient> responseInterceptor = null)
+            Action<HttpResponseMessage, HttpClient> responseInterceptor = null)
             : this(EndpointPathHelper.TakeSiteURL(EndpointPathHelper.TrimRedundantPartsOfTheURL(endpointURL)),
                    EndpointPathHelper.TakeEndpointPath(EndpointPathHelper.TrimRedundantPartsOfTheURL(endpointURL)),
                    timeout,
@@ -85,7 +84,7 @@ namespace SOAPLikeWrapperForREST
 
         #region State
         protected AuthApi AuthorizationApi;
-        protected Configuration CurrentConfiguration;
+        protected ApiClient Client;
         protected string EndpointPath;
         protected int Timeout;
         protected DateTime? BusinessDate;
@@ -112,14 +111,13 @@ namespace SOAPLikeWrapperForREST
         /// <param name="locale">Defines the locale to use for localizable data.</param>
         public void Login(string username, string password, string tenant = null, string branch = null, string locale = null)
         {
-            CurrentConfiguration = AuthorizationApi.LogIn(
+            AuthorizationApi.LogIn(
                 new Credentials(
                     name: username,
                     password: password,
                     tenant: tenant,
                     branch: branch,
                     locale: locale));
-            CurrentConfiguration.Timeout = Timeout;
         }
 
         /// <summary>
@@ -134,15 +132,15 @@ namespace SOAPLikeWrapperForREST
         }
 
         public T GetById<T>(Guid? id, string select = null, string filter = null, string expand = null, string custom = null)
-            where T : Entity
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
             return api.GetById(id, select, filter, expand, custom);
         }
         public T GetByKeys<T>(IEnumerable<string> ids, string select = null, string filter = null, string expand = null, string custom = null)
-            where T : Entity
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
             return api.GetByKeys(ids, select, filter, expand, custom);
         }
 
@@ -156,9 +154,9 @@ namespace SOAPLikeWrapperForREST
         /// <exception cref="Exception"></exception>
         [Obsolete("Get method is for backward compatibility with SOAP only. Use one of the following REST methods instead: GetList, GetByKeys, GetByID")]
         public T Get<T>(T entity)
-            where T : Entity
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
 
             T result = api.GetById(GetRecordIDViaGetList(entity, api),
                 filter: ComposeFilters(entity),
@@ -173,9 +171,9 @@ namespace SOAPLikeWrapperForREST
        
 
         public T[] GetList<T>(T entity, int? top = null, int? skip = null, Dictionary<string, string> customHeaders = null)
-            where T : Entity
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
 
             var result = api.GetList(
                 filter: ComposeFilters(entity),
@@ -194,9 +192,9 @@ namespace SOAPLikeWrapperForREST
 
 
         public T Put<T>(T entity)
-            where T : Entity
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
             var result = api.PutEntity(entity,
                 filter: ComposeFilters(entity),
                 expand: ComposeExpands(entity),
@@ -215,11 +213,11 @@ namespace SOAPLikeWrapperForREST
         /// <remarks>Can execute several REST API calls internally</remarks>
         [Obsolete("PutFiles method is for backward compatibility with SOAP only. Use one of the following REST methods instead: PutFile, PutFileAsync")]
         public void PutFiles<T>(List<string> keys, File[] files)
-            where T : Entity
+            where T : Entity, new()
         {
             foreach (var file in files)
             {
-                SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+                SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
                 api.PutFile(keys, file.Name, file.Content);
             }
         }
@@ -234,9 +232,9 @@ namespace SOAPLikeWrapperForREST
         /// <remarks>Can execute several REST API calls internally</remarks>
         [Obsolete("GetFiles method is for backward compatibility with SOAP only. Use one of the following REST methods instead: FileApi.GetFile")]
         public File[] GetFiles<T>(T entity)
-            where T : Entity
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
 
             T record = api.GetById(GetRecordIDViaGetList(entity, api),
                 expand: ExpandsHelper.ComposeFilesExpand(entity)
@@ -251,7 +249,7 @@ namespace SOAPLikeWrapperForREST
             }
 
             var filesArray = new File[record.Files.Count];
-            FileApi fileApi = new FileApi(CurrentConfiguration);
+            FileApi fileApi = new FileApi(Client);
 
             for (int i = 0; i < filesArray.Length; i++)
             {
@@ -277,7 +275,7 @@ namespace SOAPLikeWrapperForREST
         /// <remarks>Can execute several REST API calls internally</remarks>
         [Obsolete("Delete method is for backward compatibility with SOAP only. Use one of the following REST methods instead: DeleteByID, DeleteByKeys")]
         public void Delete<T>(T entity)
-            where T : Entity
+            where T : Entity, new()
         {
             if (entity.ID != null) DeleteById<T>(entity.ID);
             else DeleteById<T>(Get(entity).ID);
@@ -289,9 +287,10 @@ namespace SOAPLikeWrapperForREST
         /// <exception cref="ApiException">Thrown when fails to make API call</exception>
         /// <param name="id">The session ID of the record.</param>
         /// <returns></returns>
-        public void DeleteById<T>(Guid? id) where T : Entity
+        public void DeleteById<T>(Guid? id) 
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
             api.DeleteById(id);
         }
 
@@ -302,16 +301,16 @@ namespace SOAPLikeWrapperForREST
         /// <param name="id">The session ID of the record.</param>
         /// <returns></returns>
         public void DeleteByKeys<T>(IEnumerable<string> ids)
-            where T : Entity
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
             api.DeleteByKeys(ids);
         }
 
         public string Invoke<T>(EntityAction<T> action)
-              where T : Entity
+              where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
             string invokeResult = api.InvokeAction(action, businessDate: BusinessDate);
             if (ProcessStartTime.ContainsKey(invokeResult))
             { }
@@ -321,9 +320,10 @@ namespace SOAPLikeWrapperForREST
             }
             return invokeResult;
         }
+        private class EntityHack : Entity { }
         public ProcessResult GetProcessStatus(string invokeResult)
         {
-            SOAPLikeEntityAPI<Entity> api = new SOAPLikeEntityAPI<Entity>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<EntityHack> api = new SOAPLikeEntityAPI<EntityHack>(Client, EndpointPath);
             return new ProcessResult()
             {
                 Status = (ProcessStatus)api.GetProcessStatus(invokeResult),
@@ -333,19 +333,19 @@ namespace SOAPLikeWrapperForREST
         }
 
         public string Invoke<T>(T entity, EntityAction<T> action)
-            where T : Entity
+            where T : Entity, new()
         {
             action.Entity = entity;
             return Invoke(action);
         }
         public ProcessResult WaitInvoke<T>(T entity, EntityAction<T> action)
-            where T : Entity
+            where T : Entity, new()
         {
             action.Entity = entity;
             return WaitInvoke(action);
         }
         public ProcessResult WaitInvoke<T>(EntityAction<T> action, bool throwOnFail = true)
-            where T : Entity
+            where T : Entity, new()
         {
             InvokeResult invokeResult = Invoke(action);
 
@@ -378,34 +378,39 @@ namespace SOAPLikeWrapperForREST
         }
 
         public Entity GetCustomFieldSchema<T>(T entity)
-            where T : Entity
+            where T : Entity, new()
         {
-            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(CurrentConfiguration, EndpointPath);
+            SOAPLikeEntityAPI<T> api = new SOAPLikeEntityAPI<T>(Client, EndpointPath);
             return api.GetAdHocSchema();
         }
         #endregion
 
         #region Implementation
-        protected virtual string ComposeFilters<T>(T entity, bool addPossibleKeyFields = false) where T : Entity
+        protected virtual string ComposeFilters<T>(T entity, bool addPossibleKeyFields = false) 
+            where T : Entity
         {
             return FiltersHelper.ComposeFilters(entity, addPossibleKeyFields);
         }
 
-        protected virtual string ComposeExpands<T>(T entity) where T : Entity
+        protected virtual string ComposeExpands<T>(T entity) 
+            where T : Entity
         {
             return ExpandsHelper.ComposeExpands(entity);
         }
-        protected virtual string ComposeSelects<T>(T entity) where T : Entity
+        protected virtual string ComposeSelects<T>(T entity) 
+            where T : Entity
         {
             return SelectsHelper.ComposeSelects(entity);
         }
 
-        protected virtual string ComposeCustomParameters<T>(T entity) where T : Entity
+        protected virtual string ComposeCustomParameters<T>(T entity) 
+            where T : Entity
         {
             return CustomFieldsHelper.ComposeCustomParameter(entity);
         }
 
-        private Guid GetRecordIDViaGetList<T>(T entity, SOAPLikeEntityAPI<T> api) where T : Entity
+        private Guid GetRecordIDViaGetList<T>(T entity, SOAPLikeEntityAPI<T> api) 
+            where T : Entity, new()
         {
             if (entity.ID.HasValue)
             {

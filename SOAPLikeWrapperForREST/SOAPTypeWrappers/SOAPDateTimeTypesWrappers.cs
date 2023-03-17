@@ -1,7 +1,8 @@
-﻿using Acumatica.RESTClient.Model;
-using SOAPLikeWrapperForREST.SOAPTypeWrappers;
+﻿using System;
 
-using System;
+using Acumatica.RESTClient.ContractBasedApi.Model;
+
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
 
 namespace SOAPLikeWrapperForREST
 {

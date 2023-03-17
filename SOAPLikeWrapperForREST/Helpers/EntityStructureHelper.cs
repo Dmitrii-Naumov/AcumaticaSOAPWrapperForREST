@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-using Entity = Acumatica.RESTClient.Model.Entity;
-using Entity_v4 = Acumatica.RESTClient.Model.Entity_v4;
-using CustomField = Acumatica.RESTClient.Model.CustomField;
+using Acumatica.RESTClient.ContractBasedApi.Model;
 
 namespace SOAPLikeWrapperForREST.Helpers
 {
@@ -40,7 +38,7 @@ namespace SOAPLikeWrapperForREST.Helpers
                 if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType)
                     && property.Name != nameof(Entity.Custom)
                     && property.Name != nameof(Entity.CustomFields)
-                    && property.Name != nameof(Entity_v4.Files)
+                    && property.Name != nameof(Entity.Files)
                     && property.PropertyType != typeof(CustomField[])
                     && property.PropertyType != typeof(string)
                     )
@@ -71,9 +69,9 @@ namespace SOAPLikeWrapperForREST.Helpers
         {
             return entityType.GetProperties()
                 .Where(property =>
-                        typeof(Acumatica.RESTClient.Model.IRestValueMarker).IsAssignableFrom(property.PropertyType)
+                        typeof(RestValueBase<>).IsAssignableFrom(property.PropertyType)
                         // We consider Note a system field that we cannot process the same way as normal fields
-                        && property.Name != nameof(Entity_v4.Note)
+                        && property.Name != nameof(Entity.Note)
                       );
         }
 

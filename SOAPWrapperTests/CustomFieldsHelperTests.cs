@@ -1,6 +1,5 @@
-﻿using Acumatica.RESTClient.Model;
+﻿using Acumatica.RESTClient.ContractBasedApi.Model;
 
-using SOAPLikeWrapperForREST;
 using SOAPLikeWrapperForREST.Helpers;
 
 namespace SOAPWrapperTests

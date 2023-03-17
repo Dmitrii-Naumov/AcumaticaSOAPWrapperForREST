@@ -1,14 +1,15 @@
-﻿using Acumatica.RESTClient.Api;
+﻿
 using Acumatica.RESTClient.Client;
-using Acumatica.RESTClient.Model;
+using Acumatica.RESTClient.ContractBasedApi.Model;
+using Acumatica.RESTClient.ContractBasedApi;
 
 namespace SOAPLikeWrapperForREST
 {
     public class SOAPLikeEntityAPI<T> : EntityAPI<T>
-        where T : Entity
+        where T : Entity, new()
     {
         protected readonly string EndpointPath;
-        public SOAPLikeEntityAPI(Configuration configuration, string endpointPath) : base(configuration)
+        public SOAPLikeEntityAPI(ApiClient client, string endpointPath) : base(client)
         {
             EndpointPath = endpointPath;
         }

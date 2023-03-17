@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using Acumatica.RESTClient.Model;
+using Acumatica.RESTClient.Client;
+using Acumatica.RESTClient.ContractBasedApi.Model;
+using Acumatica.RESTClient.ContractBasedApi;
 
 using static SOAPLikeWrapperForREST.Helpers.EntityStructureHelper;
 

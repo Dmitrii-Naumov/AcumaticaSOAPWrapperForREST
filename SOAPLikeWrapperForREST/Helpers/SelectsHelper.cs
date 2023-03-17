@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using Acumatica.RESTClient.Model;
+
+using Acumatica.RESTClient.ContractBasedApi.Model;
+
+using SOAPLikeWrapperForREST.SOAPTypeWrappers;
 
 using static SOAPLikeWrapperForREST.Helpers.EntityStructureHelper;
-using SOAPLikeWrapperForREST.SOAPTypeWrappers;
 
 namespace SOAPLikeWrapperForREST.Helpers
 {

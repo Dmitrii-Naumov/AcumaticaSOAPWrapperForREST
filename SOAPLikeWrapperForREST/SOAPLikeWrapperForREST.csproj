@@ -29,7 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Acumatica.RESTClient" Version="3.5.0" />
+    <PackageReference Include="Acumatica.RESTClient" Version="4.0.0-alpha" />
+    <PackageReference Include="Acumatica.RESTClient.ContractBasedApi" Version="4.0.0-alpha" />
   </ItemGroup>
 
 </Project>

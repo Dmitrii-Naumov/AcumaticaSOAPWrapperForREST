@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-using Acumatica.RESTClient.Model;
+using Acumatica.RESTClient.ContractBasedApi.Model;
 
 namespace SOAPLikeWrapperForREST
 {
