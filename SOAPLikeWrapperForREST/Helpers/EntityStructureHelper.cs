@@ -62,14 +62,14 @@ namespace SOAPLikeWrapperForREST.Helpers
         /// Gets all <see cref="RestValueBase{T}">value fields</see> 
         /// that are not <see cref="LinkedEntity"/> or Details. 
         /// Does not return system fields, e.g. <see cref="Entity.ID"/>, 
-        /// <see cref="Entity_v4.Note"/> or <see cref="Entity.RowNumber"/>
+        /// <see cref="Entity.Note"/> or <see cref="Entity.RowNumber"/>
         /// </summary>
         /// <param name="entityType"></param>
         public static IEnumerable<PropertyInfo> GetFields(Type entityType)
         {
             return entityType.GetProperties()
                 .Where(property =>
-                        typeof(RestValueBase<>).IsAssignableFrom(property.PropertyType)
+                        typeof(IRestValueMarker).IsAssignableFrom(property.PropertyType)
                         // We consider Note a system field that we cannot process the same way as normal fields
                         && property.Name != nameof(Entity.Note)
                       );
