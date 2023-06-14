@@ -41,8 +41,8 @@ namespace SOAPLikeWrapperForREST
             string siteURL, 
             string endpointPath, 
             int timeout = 10000, 
-            Action<HttpRequestMessage, HttpClient> requestInterceptor = null, 
-            Action<HttpResponseMessage, HttpClient> responseInterceptor = null)
+            Action<HttpRequestMessage> requestInterceptor = null, 
+            Action<HttpResponseMessage> responseInterceptor = null)
         {
             AuthorizationApi = new AuthApi(siteURL, timeout, requestInterceptor, responseInterceptor);
             ProcessStartTime = new Dictionary<string, DateTime>();
@@ -71,9 +71,9 @@ namespace SOAPLikeWrapperForREST
         /// </param>
         public SOAPLikeClient(string endpointURL, 
             int timeout = 10000, 
-            Action<HttpRequestMessage, HttpClient> 
+            Action<HttpRequestMessage> 
             requestInterceptor = null, 
-            Action<HttpResponseMessage, HttpClient> responseInterceptor = null)
+            Action<HttpResponseMessage> responseInterceptor = null)
             : this(EndpointPathHelper.TakeSiteURL(EndpointPathHelper.TrimRedundantPartsOfTheURL(endpointURL)),
                    EndpointPathHelper.TakeEndpointPath(EndpointPathHelper.TrimRedundantPartsOfTheURL(endpointURL)),
                    timeout,
