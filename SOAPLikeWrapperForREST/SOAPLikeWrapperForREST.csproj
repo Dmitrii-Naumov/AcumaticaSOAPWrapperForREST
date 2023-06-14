@@ -1,9 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>Acumatica.$(AssemblyName)</PackageId>
-	<Version>3.5.1</Version>
+	<Version>4.0.2-alpha</Version>
 	<Company>Acumatica</Company>
 	<Authors>Dmitrii-Naumov</Authors>
 	<Product>Acumatica.$(AssemblyName)</Product>
@@ -12,25 +11,22 @@
 	<PackageProjectUrl>https://github.com/Acumatica/AcumaticaSOAPWrapperForREST</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/Acumatica/AcumaticaSOAPWrapperForREST</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
-	<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-	<PackageReleaseNotes>Removed misleading paramter from Get Method</PackageReleaseNotes>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageReleaseNotes>Removed REST Sharp dependency</PackageReleaseNotes>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<Title>A wrapper for Acumatica REST API Client making it look like deprecated SOAP API</Title>
 	<PackageTags>Acumatica;REST;client;SOAP</PackageTags>
 	<IncludeSymbols>True</IncludeSymbols>
 	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Acumatica.RESTClient" Version="4.0.0-alpha" />
-    <PackageReference Include="Acumatica.RESTClient.ContractBasedApi" Version="4.0.0-alpha" />
+    <PackageReference Include="Acumatica.RESTClient" Version="4.1.0" />
+    <PackageReference Include="Acumatica.RESTClient.ContractBasedApi" Version="4.1.0" />
   </ItemGroup>
-
 </Project>
