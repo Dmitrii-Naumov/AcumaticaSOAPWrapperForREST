@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
-
-using RestSharp;
+using System.Net.Http;
 
 namespace AcumaticaSoapLikeApiExample
 {
@@ -11,7 +10,7 @@ namespace AcumaticaSoapLikeApiExample
         /// <summary>
         /// Logs response to Console
         /// </summary>
-        public static void LogResponse(RestRequest request, RestResponse response, RestClient restClient)
+        public static void LogResponse(HttpResponseMessage response)
         {
             Console.WriteLine(DateTime.Now.ToString());
             Console.WriteLine("Response");
@@ -24,20 +23,14 @@ namespace AcumaticaSoapLikeApiExample
         /// <summary>
         /// Logs request to Console
         /// </summary>
-        public static void LogRequest(RestRequest request, RestClient restClient)
+        public static void LogRequest(HttpRequestMessage request)
         {
             Console.WriteLine(DateTime.Now.ToString());
             Console.WriteLine("Request");
             Console.WriteLine("\tMethod: " + request.Method);
-            string parameters = "";
-            string body = "";
-            foreach (var parameter in request.Parameters)
-            {
-                if (parameter.Type == ParameterType.RequestBody)
-                    body += parameter.Value;
-            }
+            string body = request.Content?.ReadAsStringAsync().Result;
 
-            Console.WriteLine("\tURL: " + restClient.BuildUri(request) + parameters);
+            Console.WriteLine("\tURL: " + request.RequestUri);
             if (!String.IsNullOrEmpty(body))
                 Console.WriteLine("\tBody: " + body);
             Console.WriteLine("-----------------------------------------");

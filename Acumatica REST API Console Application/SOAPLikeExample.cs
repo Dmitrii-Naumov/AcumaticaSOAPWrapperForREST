@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using Acumatica.Default_22_200_001.Model;
-using Acumatica.RESTClient.Model;
+using Acumatica.RESTClient.ContractBasedApi.Model;
 
 using SOAPLikeWrapperForREST;
 
@@ -12,19 +12,19 @@ namespace AcumaticaSoapLikeApiExample
     {
         public static void ExampleMethod(string siteURL, string username, string password, string tenant = null, string branch = null, string locale = null)
         {
-            var restClient = new SOAPLikeClient(siteURL,
+            var client = new SOAPLikeClient(siteURL,
                 requestInterceptor: RequestConsoleLogger.LogRequest,
                 responseInterceptor: RequestConsoleLogger.LogResponse);
 
             try
             {
-                restClient.Login(username, password, tenant, branch, locale);
+                client.Login(username, password, tenant, branch, locale);
                 Console.WriteLine("Logged In");
 
 
-                Contact contactToSearch = new Contact() { ContactID = new IntSearch() { Value = 123 } };
+                //  Contact contactToSearch = new Contact() { ContactID = new IntSearch() { Value = 123 } };
 
-                restClient.Get(contactToSearch);
+                //  restClient.Get(contactToSearch);
                 Shipment shipment = new Shipment()
                 {
                     ShipmentNbr = new StringSearch() { Value = "004372" },
@@ -38,19 +38,19 @@ namespace AcumaticaSoapLikeApiExample
                             }
                         }
                     },
-                    CustomFields = new CustomField[] { new CustomField("CustomStringValue") { viewName="Document", fieldName="ShipmentNbr" } }
-                
+                    CustomFields = new CustomField[] { new CustomStringField { viewName = "Document", fieldName = "ShipmentNbr" } }
+
                 };
-                shipment = (Shipment)restClient.Get(shipment);
+                shipment = (Shipment)client.Get(shipment);
 
                 Console.WriteLine("Shipped Qty= " + shipment.ShippedQty.Value);
 
 
                 Console.WriteLine("Get Sales Order custom fields schema");
-                restClient.GetCustomFieldSchema(new SalesOrder());
+                client.GetCustomFieldSchema(new SalesOrder());
 
                 Console.WriteLine("Confirming the shipment.");
-                restClient.WaitInvoke(new ConfirmShipment(shipment));
+                client.WaitInvoke(new ConfirmShipment(shipment));
 
             }
             catch (Exception e)
@@ -59,7 +59,7 @@ namespace AcumaticaSoapLikeApiExample
             }
             finally
             {
-                restClient.Logout();
+                client.Logout();
                 Console.WriteLine("Logged Out");
             }
 

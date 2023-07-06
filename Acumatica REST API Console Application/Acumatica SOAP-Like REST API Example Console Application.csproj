@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Acumatica.Default_22.200.001" Version="3.2.1" />
-    <PackageReference Include="Acumatica.SOAPLikeWrapperForREST" Version="3.2.1" />
+    <PackageReference Include="Acumatica.Default_22.200.001" Version="5.0.0-alpha" />
+    <PackageReference Include="Acumatica.SOAPLikeWrapperForREST" Version="5.0.3-alpha" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SOAPLikeWrapperForREST\SOAPLikeWrapperForREST.csproj" />
   </ItemGroup>
 
 </Project>
